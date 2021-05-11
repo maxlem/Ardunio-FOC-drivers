@@ -9,8 +9,8 @@
 #define LIBRARIES_ARDUNIO_FOC_DRIVERS_SRC_ENCODERS_AS5048A_PRECISEMAGNETICSENSORAS5048A_H_
 
 #include "common/base_classes/Sensor.h"
-#include "./AS5048A.h"
-#include "utilities/PreciseAngle.h"
+#include "AS5048A.h"
+#include "../../utilities/PreciseAngle.h"
 
 class PreciseMagneticSensorAS5048A : public Sensor, public AS5048A {
 public:

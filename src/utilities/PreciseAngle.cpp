@@ -5,7 +5,7 @@
  *      Author: runger
  */
 
-#include <utilities/PreciseAngle.h>
+#include "PreciseAngle.h"
 #include <common/foc_utils.h>
 
 PreciseAngle::PreciseAngle() : angle(0), rotations(0)  {}

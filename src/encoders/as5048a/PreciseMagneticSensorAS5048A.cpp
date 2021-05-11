@@ -5,7 +5,7 @@
  *      Author: runger
  */
 
-#include <encoders/as5048a/PreciseMagneticSensorAS5048A.h>
+#include "./PreciseMagneticSensorAS5048A.h"
 #include "common/foc_utils.h"
 #include "common/time_utils.h"
 

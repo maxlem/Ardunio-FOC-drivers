@@ -3,7 +3,7 @@
 #define __MAGNETICSENSORAS5048A_H__
 
 #include "common/base_classes/Sensor.h"
-#include "./AS5048A.h"
+#include "AS5048A.h"
 
 class MagneticSensorAS5048A : public Sensor, public AS5048A {
 public:
