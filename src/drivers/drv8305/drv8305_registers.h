@@ -217,22 +217,17 @@ public:
 // Table 9. Warning and Watchdog Reset Register Description 
 // BIT  RW  NAME  DEFAULT  DESCRIPTION 
 
+template <byte Address>
 class Register
 {
-	public:
-	Register(byte address):address(address)
-	{
-
-	}
-
-	byte address;
+	static const byte address = Address;
 };
 
-class WarningAndWatchdog : Register
+class WarningAndWatchdog : Register<0x01>
 {
 
 public:
-	WarningAndWatchdog(): Register(0x01), 
+	WarningAndWatchdog():  
 	FAULT_(DRV8305RegisterBOOL::False,  "Fault indication"),
 	RSVD_(DRV8305RegisterBOOL::False, "-"),
 	TEMP_FLAG4_(DRV8305RegisterBOOL::False,  "Temperature flag setting for approximately 175°C"),
@@ -261,7 +256,90 @@ public:
 // 7.6.1.2 OV/VDS Faults (Address = 0x2) 
 // Table 10. OV/VDS Faults Register Description 
 // BIT 	RW 	NAME  DEFAULT  DESCRIPTION
+class OVandVDSFaults : Register<0x02> 
+{
 
+public: 
+	OVandVDSFaults():
+	VDS_HA_(DRV8305RegisterBOOL::False,  "VDS overcurrent fault for high-side MOSFET A"),
+	VDS_LA_(DRV8305RegisterBOOL::False,  "VDS overcurrent fault for low-side MOSFET A"),
+	VDS_HB_(DRV8305RegisterBOOL::False,  "VDS overcurrent fault for high-side MOSFET B"),
+	VDS_LB_(DRV8305RegisterBOOL::False,  "VDS overcurrent fault for low-side MOSFET B"),
+	VDS_HC_(DRV8305RegisterBOOL::False,  "VDS overcurrent fault for high-side MOSFET C"),
+	VDS_LC_(DRV8305RegisterBOOL::False,  "VDS overcurrent fault for low-side MOSFET C"),
+	RSVD_(DRV8305RegisterBOOL::False,  "-"),
+	SNS_C_OCP_(DRV8305RegisterBOOL::False,  "Sense C overcurrent fault"),
+	SNS_B_OCP_(DRV8305RegisterBOOL::False,  "Sense B overcurrent fault"),
+	SNS_A_OCP_(DRV8305RegisterBOOL::False,  "Sense A overcurrent fault"){}
+
+	DRV8305Register<DRV8305RegisterBOOL, 10, 1, 	R, 	VDS_HA> VDS_HA_;
+	DRV8305Register<DRV8305RegisterBOOL, 9,  1, 	R, 	VDS_LA> VDS_LA_;
+	DRV8305Register<DRV8305RegisterBOOL, 8,  1, 	R, 	VDS_HB> VDS_HB_;
+	DRV8305Register<DRV8305RegisterBOOL, 7,  1, 	R, 	VDS_LB> VDS_LB_;
+	DRV8305Register<DRV8305RegisterBOOL, 6,  1, 	R, 	VDS_HC> VDS_HC_;
+	DRV8305Register<DRV8305RegisterBOOL, 5,  1, 	R, 	VDS_LC> VDS_LC_;
+	DRV8305Register<DRV8305RegisterBOOL, 3,  2, 	R, 	RSVD> RSVD_;
+	DRV8305Register<DRV8305RegisterBOOL, 2,  1, 	R, 	SNS_C_OCP> SNS_C_OCP_;
+	DRV8305Register<DRV8305RegisterBOOL, 1,  1, 	R, 	SNS_B_OCP> SNS_B_OCP_;
+	DRV8305Register<DRV8305RegisterBOOL, 0,  1, 	R, 	SNS_A_OCP> SNS_A_OCP_;
+};
+
+// 7.6.1.3 IC Faults (Address = 0x3) 
+// Table 11. IC Faults Register Description 
+// BIT  RW  NAME  DEFAULT  DESCRIPTION 
+
+class ICFaults: public Register<0x03> 
+{
+
+public:
+	ICFaults():
+	PVDD_UVLO2_(DRV8305RegisterBOOL::False,  "PVDD undervoltage 2 fault"),
+	WD_FAULT_(DRV8305RegisterBOOL::False,  "Watchdog fault"),
+	OTSD_(DRV8305RegisterBOOL::False,  "Overtemperature fault"),
+	RSVD_(DRV8305RegisterBOOL::False,  "-"),
+	VREG_UV_(DRV8305RegisterBOOL::False,  "VREG undervoltage fault"),
+	AVDD_UVLO_(DRV8305RegisterBOOL::False,  "AVDD undervoltage fault"),
+	VCP_LSD_UVLO2_(DRV8305RegisterBOOL::False,  "Low-side gate supply fault"),
+	VCPH_UVLO2_(DRV8305RegisterBOOL::False,  "High-side charge pump undervoltage 2 fault"),
+	VCPH_OVLO_(DRV8305RegisterBOOL::False,  "High-side charge pump overvoltage fault"),
+	VCPH_OVLO_ABS_(DRV8305RegisterBOOL::False,  "High-side charge pump overvoltage ABS fault"){}
+
+	DRV8305Register<DRV8305RegisterBOOL, 10, 1,  R,  PVDD_UVLO2> PVDD_UVLO2_;
+	DRV8305Register<DRV8305RegisterBOOL, 9,  1,  R,  WD_FAULT> WD_FAULT_;
+	DRV8305Register<DRV8305RegisterBOOL, 8,  1,  R,  OTSD> OTSD_;
+	DRV8305Register<DRV8305RegisterBOOL, 7,  1,  R,  RSVD> RSVD_;
+	DRV8305Register<DRV8305RegisterBOOL, 6,  1,  R,  VREG_UV> VREG_UV_;
+	DRV8305Register<DRV8305RegisterBOOL, 5,  1,  R,  AVDD_UVLO> AVDD_UVLO_;
+	DRV8305Register<DRV8305RegisterBOOL, 4,  1,  R,  VCP_LSD_UVLO2> VCP_LSD_UVLO2_;
+	DRV8305Register<DRV8305RegisterBOOL, 2,  1,  R,  VCPH_UVLO2> VCPH_UVLO2_;
+	DRV8305Register<DRV8305RegisterBOOL, 1,  1,  R,  VCPH_OVLO> VCPH_OVLO_;
+	DRV8305Register<DRV8305RegisterBOOL, 0,  1,  R,  VCPH_OVLO_ABS> VCPH_OVLO_ABS_;
+};
+
+// 7.6.1.4 VGS Faults (Address = 0x4) 
+// Table 12. Gate Driver VGS Faults Register Description 
+// BIT  RW  NAME  DEFAULT  DESCRIPTION 
+
+class GateDriverVGSFaults : public Register<0x04> 
+{
+public:
+	GateDriverVGSFaults() :
+	VGS_HA_(DRV8305RegisterBOOL::False,  "VGS gate drive fault for high-side MOSFET A"),
+	VGS_LA_(DRV8305RegisterBOOL::False,  "VGS gate drive fault for low-side MOSFET A"),
+	VGS_HB_(DRV8305RegisterBOOL::False,  "VGS gate drive fault for high-side MOSFET B"),
+	VGS_LB_(DRV8305RegisterBOOL::False,  "VGS gate drive fault for low-side MOSFET B"),
+	VGS_HC_(DRV8305RegisterBOOL::False,  "VGS gate drive fault for high-side MOSFET C"),
+	VGS_LC_(DRV8305RegisterBOOL::False,  "VGS gate drive fault for low-side MOSFET C"),
+	RSVD_(DRV8305RegisterBOOL::False,  "-"){}
+
+	DRV8305Register<DRV8305RegisterBOOL, 10, 1,  R,  VGS_HA> VGS_HA_;
+	DRV8305Register<DRV8305RegisterBOOL, 9,  1,  R,  VGS_LA> VGS_LA_;
+	DRV8305Register<DRV8305RegisterBOOL, 8,  1,  R,  VGS_HB> VGS_HB_;
+	DRV8305Register<DRV8305RegisterBOOL, 7,  1,  R,  VGS_LB> VGS_LB_;
+	DRV8305Register<DRV8305RegisterBOOL, 6,  1,  R,  VGS_HC> VGS_HC_;
+	DRV8305Register<DRV8305RegisterBOOL, 5,  1,  R,  VGS_LC> VGS_LC_;
+	DRV8305Register<DRV8305RegisterBOOL, 0,  5,  R,  RSVD> RSVD_;
+};
 struct DRV8305RegisterDescription
 {
     byte bitStart;
@@ -272,53 +350,10 @@ struct DRV8305RegisterDescription
     const char * description;
 };
 
-DRV8305RegisterDescription OVandVDSFaults_0x02[] = 
-{
-{10, 1, 	R, 	VDS_HA,  0x0,  "VDS overcurrent fault for high-side MOSFET A"},
-{9,  1, 	R, 	VDS_LA,  0x0,  "VDS overcurrent fault for low-side MOSFET A"},
-{8,  1, 	R, 	VDS_HB,  0x0,  "VDS overcurrent fault for high-side MOSFET B"},
-{7,  1, 	R, 	VDS_LB,  0x0,  "VDS overcurrent fault for low-side MOSFET B"},
-{6,  1, 	R, 	VDS_HC,  0x0,  "VDS overcurrent fault for high-side MOSFET C"},
-{5,  1, 	R, 	VDS_LC,  0x0,  "VDS overcurrent fault for low-side MOSFET C"},
-{3,  2, 	R, 	RSVD,  0x0,  "-"},
-{2,  1, 	R, 	SNS_C_OCP,  0x0,  "Sense C overcurrent fault"},
-{1,  1, 	R, 	SNS_B_OCP,  0x0,  "Sense B overcurrent fault"},
-{0,  1, 	R, 	SNS_A_OCP,  0x0,  "Sense A overcurrent fault"},
-};
 
-// 7.6.1.3 IC Faults (Address = 0x3) 
-// Table 11. IC Faults Register Description 
-// BIT  RW  NAME  DEFAULT  DESCRIPTION 
 
-DRV8305RegisterDescription ICFaults_0x03[] = 
-{
-{10, 1,  R,  PVDD_UVLO2,  0x0,  "PVDD undervoltage 2 fault"},
-{9,  1,  R,  WD_FAULT,  0x0,  "Watchdog fault"},
-{8,  1,  R,  OTSD,  0x0,  "Overtemperature fault"},
-{7,  1,  R,  RSVD,  0x0,  "-"},
-{6,  1,  R,  VREG_UV,  0x0,  "VREG undervoltage fault"},
-{5,  1,  R,  AVDD_UVLO,  0x0,  "AVDD undervoltage fault"},
-{4,  1,  R,  VCP_LSD_UVLO2,  0x0,  "Low-side gate supply fault"},
-{3,  1,  R,  RSVD,  0x0,  "-"},
-{2,  1,  R,  VCPH_UVLO2,  0x0,  "High-side charge pump undervoltage 2 fault"},
-{1,  1,  R,  VCPH_OVLO,  0x0,  "High-side charge pump overvoltage fault"},
-{0,  1,  R,  VCPH_OVLO_ABS,  0x0,  "High-side charge pump overvoltage ABS fault"},
-};
 
-// 7.6.1.4 VGS Faults (Address = 0x4) 
-// Table 12. Gate Driver VGS Faults Register Description 
-// BIT  RW  NAME  DEFAULT  DESCRIPTION 
 
-DRV8305RegisterDescription GateDriverVGSFaults_0x04[] = 
-{
-{10, 1,  R,  VGS_HA,  0x0,  "VGS gate drive fault for high-side MOSFET A"},
-{9,  1,  R,  VGS_LA,  0x0,  "VGS gate drive fault for low-side MOSFET A"},
-{8,  1,  R,  VGS_HB,  0x0,  "VGS gate drive fault for high-side MOSFET B"},
-{7,  1,  R,  VGS_LB,  0x0,  "VGS gate drive fault for low-side MOSFET B"},
-{6,  1,  R,  VGS_HC,  0x0,  "VGS gate drive fault for high-side MOSFET C"},
-{5,  1,  R,  VGS_LC,  0x0,  "VGS gate drive fault for low-side MOSFET C"},
-{0,  5,  R,  RSVD,  0x0,  "-"},
-};
 
 // 7.6.2 Control Registers 
 // Control registers are used to set the device parameters for DRV8305-Q1. The default values are shown in bold. 
@@ -525,9 +560,9 @@ struct Drv8305Register
 Drv8305Register drvRegisters_[] = 
 {
     // {0x01, 11, WarningAndWatchdog_0x01, "Warning and Watchdog Reset (Address = 0x1)"}, 
-    {0x02, 10, OVandVDSFaults_0x02, "OV/VDS Faults (Address = 0x2)"}, 
-    {0x03, 11, ICFaults_0x03, "IC Faults (Address = 0x3)"}, 
-    {0x04, 7,  GateDriverVGSFaults_0x04, "Gate Driver VGS Faults Register Description (Address = 0x4)"}, 
+    // {0x02, 10, OVandVDSFaults_0x02, "OV/VDS Faults (Address = 0x2)"}, 
+    // {0x03, 11, ICFaults_0x03, "IC Faults (Address = 0x3)"}, 
+    // {0x04, 7,  GateDriverVGSFaults_0x04, "Gate Driver VGS Faults Register Description (Address = 0x4)"}, 
     {0x05, 4,  HSGateControl_0x05, "HS Gate Drive Control (Address = 0x5)"}, 
     {0x06, 4,  LSGateControl_0x06, "LS Gate Drive Control (Address = 0x6)"}, 
     {0x07, 6,  GateDriveControl_0x07, "Gate Drive Control (Address = 0x7)"}, 
