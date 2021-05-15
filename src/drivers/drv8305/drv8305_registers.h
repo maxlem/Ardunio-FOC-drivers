@@ -400,6 +400,7 @@ public:
 		this->spi = spi;
 		this->cs = cs;
 		this->settings = settings;
+		this->poll();
 	}
 
 
@@ -464,6 +465,7 @@ Command   X    X    X    X    X    D10  D9  D8  D7  D6  D5  D4  D3  D2  D1  D0
 		value = spi->transfer16(data);
 		spi->endTransaction();
 		digitalWrite(cs, HIGH);
+		delayMicroseconds(1);
 	}
 
 
@@ -478,6 +480,7 @@ Command   X    X    X    X    X    D10  D9  D8  D7  D6  D5  D4  D3  D2  D1  D0
 		uint16_t oldData = spi->transfer16(data) & data_mask;
 		spi->endTransaction();
 		digitalWrite(cs, HIGH);
+		delayMicroseconds(1);
 		return oldData;
 	}
 	SPIClass* spi = nullptr;
@@ -542,6 +545,7 @@ public:
 	: reg(reg), defaultValue(defaultValue), description(description)
 	{
 		reg->setConfig(id, this);
+		setDefaultValue();
 	}
     ValueType defaultValue;
 	ValueType value(bool refresh = false)
@@ -550,9 +554,12 @@ public:
 	}
 	void setValue(ValueType value)
 	{
-		reg->setValue((reg->value(false) & ~bitMask) | (value << BitStart)); 
+		reg->setValue((reg->getValue(false) & ~bitMask) | (value << BitStart)); 
 	}
-
+	void setDefaultValue()
+	{
+		reg->setValue((reg->getValue(false) & ~bitMask) | (defaultValue << BitStart)); //set default value;
+	}
 	void report(Stream & stream) override
 	{
 		ValueType v = value();
@@ -741,7 +748,7 @@ public:
 	TVDS_(TVDS_3_5_us, 									F("VDS sense deglitch"), this)
 	{}
 
-	DRV8305RegisterSection<DRV8305RegisterCOMM_OPTION, 0, 9,  0b1, 	RW, 	COMM_OPTION, DRV8305RegisterCOMM_OPTIONToString> COMM_OPTION_;
+	DRV8305RegisterSection<DRV8305RegisterCOMM_OPTION, 0, 9,  0b1, 	    RW, 	COMM_OPTION, DRV8305RegisterCOMM_OPTIONToString> COMM_OPTION_;
 	DRV8305RegisterSection<DRV8305RegisterPWM_MODE,    1, 8,  0b11, 	RW, 	PWM_MODE, DRV8305RegisterPWM_MODEToString> PWM_MODE_;
 	DRV8305RegisterSection<DRV8305RegisterDEAD_TIME,   2, 5,  0b111, 	RW, 	DEAD_TIME, DRV8305RegisterDEAD_TIMEToString> DEAD_TIME_;
 	DRV8305RegisterSection<DRV8305RegisterTBLANK,      3, 3,  0b11, 	RW, 	TBLANK, DRV8305RegisterTBLANKToString> TBLANK_;
