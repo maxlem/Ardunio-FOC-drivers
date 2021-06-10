@@ -44,19 +44,22 @@ void DRV8305::refresh()
     vdsSenseControl.poll();
 }
 
-void DRV8305::report(Stream & stream, bool refresh)
+void DRV8305::report(Stream & stream, bool refresh, bool onlyNonDefaults)
 {
-    warningAndWatchdog.report(stream, refresh);
-    oVandVDSFaults.report(stream, refresh);
-    icFaults.report(stream, refresh);
-    gateDriverVGSFaults.report(stream, refresh);
-    hsGateControl.report(stream, refresh);
-    lsGateControl.report(stream, refresh);
-    gateDriveControl.report(stream, refresh);
-    icOperation.report(stream, refresh);
-    shuntAmplifierControl.report(stream, refresh);
-    voltageRegulatorControl.report(stream, refresh);
-    vdsSenseControl.report(stream, refresh);
+    if(refresh)
+        this->refresh();
+
+    warningAndWatchdog.report(stream, false, onlyNonDefaults);
+    oVandVDSFaults.report(stream, false, onlyNonDefaults);
+    icFaults.report(stream, false, onlyNonDefaults);
+    gateDriverVGSFaults.report(stream, false, onlyNonDefaults);
+    hsGateControl.report(stream, false, onlyNonDefaults);
+    lsGateControl.report(stream, false, onlyNonDefaults);
+    gateDriveControl.report(stream, false, onlyNonDefaults);
+    icOperation.report(stream, false, onlyNonDefaults);
+    shuntAmplifierControl.report(stream, false, onlyNonDefaults);
+    voltageRegulatorControl.report(stream, false, onlyNonDefaults);
+    vdsSenseControl.report(stream, false, onlyNonDefaults);
 }
 
 

@@ -383,7 +383,7 @@ enum AccessMode: byte
 class DRV8305RegisterSectionBase
 {
 	public:
-		virtual void report(Stream & stream) = 0;
+		virtual void report(Stream & stream, bool onlyNonDefaults) = 0;
 };
 
 class RegisterBase
@@ -496,7 +496,7 @@ class Register : public RegisterBase
 public:
 	Register(uint8_t address) : RegisterBase(address){}
 
-	void report(Stream & stream, bool refresh = true)
+	void report(Stream & stream, bool refresh = true, bool onlyNonDefaults = true)
 	{
 		if(spi == nullptr)
 		{
@@ -511,7 +511,7 @@ public:
 
 		for(int i =- 0; i < Count; i++)
 		{
-			configs[i]->report(stream);
+			configs[i]->report(stream, onlyNonDefaults);
 		}
 	}
 
@@ -527,16 +527,16 @@ public:
 
 template <typename ValueType
 , int id
-, byte BitStart
-, byte BitMaskZero
+, uint32_t BitStart
+, uint32_t BitMaskZero
 , AccessMode Mode
 , DRV8305RegisterName Name
 , typename ToString>
 class DRV8305RegisterSection : public DRV8305RegisterSectionBase
 {
 public:
-    static const byte bitStart = BitStart;
-    static const byte bitMask = BitMaskZero << BitStart;
+    static const uint32_t bitStart = BitStart;
+    static const uint32_t bitMask = BitMaskZero << BitStart;
     static const AccessMode mode = Mode;
     static const DRV8305RegisterName name = Name;
 
@@ -560,17 +560,24 @@ public:
 	{
 		reg->setValue((reg->getValue(false) & ~bitMask) | (defaultValue << BitStart)); //set default value;
 	}
-	void report(Stream & stream) override
+	void report(Stream & stream, bool onlyNonDefaults) override
 	{
+		
 		ValueType v = value();
+		
+		if(onlyNonDefaults && v == defaultValue)
+			return;
+
 		stream.print(DRV8305RegisterNameToString::toString(name));
 		stream.print(" (");
 		stream.print(description);
-		stream.print("): ");
+		stream.print("):");
+		for(int i = strlen_P(reinterpret_cast<const char *>(DRV8305RegisterNameToString::toString(name))) + strlen_P(reinterpret_cast<const char *>(description)); i < 60; i++)
+			stream.print(' ');
 		stream.print(ToString::toString(v));
 		stream.print(" (0b");
 		stream.print(v, BIN);
-		stream.println("): ");
+		stream.println(")");
 	}
     const __FlashStringHelper * description;
 };
@@ -711,7 +718,7 @@ public:
 	HSGateControl(): Register(0x05),
 	TDRIVEN_(TDRIVEN_1780_ns, 	F("High-side gate driver peak source time"), this),
 	IDRIVEN_HS_(IDRIVEN_60_mA, 	F("High-side gate driver peak sink current"), this),
-	IDRIVEP_HS_(IDRIVEP_0_25_A, F("High-side gate driver peak source current"), this){}
+	IDRIVEP_HS_(IDRIVEP_50_mA, F("High-side gate driver peak source current"), this){}
 	
 	DRV8305RegisterSection<DRV8305RegisterTDRIVE,  0, 8 	, 0b11,   RW, 	TDRIVEN, DRV8305RegisterTDRIVEToString>    TDRIVEN_;
 	DRV8305RegisterSection<DRV8305RegisterIDRIVEN, 1, 4 	, 0b1111, RW, 	IDRIVEN_HS, DRV8305RegisterIDRIVENToString> IDRIVEN_HS_;
@@ -726,7 +733,7 @@ public:
 	LSGateControl(): Register(0x06),
 	TDRIVEN_(TDRIVEN_1780_ns, 	F("Low-side gate driver peak source time"), this),
 	IDRIVEN_LS_(IDRIVEN_60_mA, 	F("Low-side gate driver peak sink current"), this),
-	IDRIVEP_LS_(IDRIVEP_0_25_A, F("Low-side gate driver peak source current"), this){}
+	IDRIVEP_LS_(IDRIVEP_50_mA, F("Low-side gate driver peak source current"), this){}
 	
 	DRV8305RegisterSection<DRV8305RegisterTDRIVE,  0, 8 	, 0b11,   RW, 	TDRIVEN, DRV8305RegisterTDRIVEToString>    TDRIVEN_;
 	DRV8305RegisterSection<DRV8305RegisterIDRIVEN, 1, 4 	, 0b1111, RW, 	IDRIVEN_LS, DRV8305RegisterIDRIVENToString> IDRIVEN_LS_;
@@ -749,10 +756,10 @@ public:
 	{}
 
 	DRV8305RegisterSection<DRV8305RegisterCOMM_OPTION, 0, 9,  0b1, 	    RW, 	COMM_OPTION, DRV8305RegisterCOMM_OPTIONToString> COMM_OPTION_;
-	DRV8305RegisterSection<DRV8305RegisterPWM_MODE,    1, 8,  0b11, 	RW, 	PWM_MODE, DRV8305RegisterPWM_MODEToString> PWM_MODE_;
-	DRV8305RegisterSection<DRV8305RegisterDEAD_TIME,   2, 5,  0b111, 	RW, 	DEAD_TIME, DRV8305RegisterDEAD_TIMEToString> DEAD_TIME_;
-	DRV8305RegisterSection<DRV8305RegisterTBLANK,      3, 3,  0b11, 	RW, 	TBLANK, DRV8305RegisterTBLANKToString> TBLANK_;
-	DRV8305RegisterSection<DRV8305RegisterTVDS,        4, 1,  0b11, 	RW, 	TVDS, DRV8305RegisterTVDSToString> TVDS_;
+	DRV8305RegisterSection<DRV8305RegisterPWM_MODE,    1, 7,  0b11, 	RW, 	PWM_MODE, DRV8305RegisterPWM_MODEToString> PWM_MODE_;
+	DRV8305RegisterSection<DRV8305RegisterDEAD_TIME,   2, 4,  0b111, 	RW, 	DEAD_TIME, DRV8305RegisterDEAD_TIMEToString> DEAD_TIME_;
+	DRV8305RegisterSection<DRV8305RegisterTBLANK,      3, 2,  0b11, 	RW, 	TBLANK, DRV8305RegisterTBLANKToString> TBLANK_;
+	DRV8305RegisterSection<DRV8305RegisterTVDS,        4, 0,  0b11, 	RW, 	TVDS, DRV8305RegisterTVDSToString> TVDS_;
 };
 
 // 7.6.2.4  IC Operation (Address = 0x9) 
@@ -808,7 +815,7 @@ public:
 	
 	
 	
-	DRV8305RegisterSection<DRV8305RegisterDC_CAL,   0, 10, 0b1,    RW, 	DC_CAL_CH3, DRV8305RegisterDC_CALToString> DC_CAL_CH3_;
+	DRV8305RegisterSection<DRV8305RegisterDC_CAL,   0, 10, 0b1,     RW, 	DC_CAL_CH3, DRV8305RegisterDC_CALToString> DC_CAL_CH3_;
 	DRV8305RegisterSection<DRV8305RegisterDC_CAL,   1, 9,  0b1, 	RW, 	DC_CAL_CH2, DRV8305RegisterDC_CALToString> DC_CAL_CH2_;
 	DRV8305RegisterSection<DRV8305RegisterDC_CAL,   2, 8,  0b1, 	RW, 	DC_CAL_CH1, DRV8305RegisterDC_CALToString> DC_CAL_CH1_;
 	DRV8305RegisterSection<DRV8305RegisterCS_BLANK, 3, 6,  0b11, 	RW, 	CS_BLANK, DRV8305RegisterCS_BLANKToString> CS_BLANK_;
@@ -843,7 +850,7 @@ class VDSSenseControl : public Register<2>
 {
 	public:
 	VDSSenseControl(): Register(0x0C),
-	VDS_LEVEL_(VDS_LEVEL_0_576_V, 										F("VDS comparator threshold"), this), 
+	VDS_LEVEL_(VDS_LEVEL_1_175_V, 										F("VDS comparator threshold"), this), 
 	VDS_MODE_(VDS_MODE_Latched_shut_down_when_over_current_detected, 	F("VDS mode"), this){}
 
 	DRV8305RegisterSection<DRV8305RegisterVDS_LEVEL, 0, 3, 0b11111, 	RW, 	VDS_LEVEL, DRV8305RegisterVDS_LEVELToString> VDS_LEVEL_;

@@ -12,13 +12,13 @@ class DRV8305
 public: 
     DRV8305(int cs, int nFault): cs(cs), nFault(nFault)
     {
-
+        pinMode(nFault, INPUT_PULLUP); // Pull-up on Fault line of DRV
     }
 
     void init(SPIClass* spi = &SPI);
 
     void refresh();
-    void report(Stream & stream, bool refresh = true);
+    void report(Stream & stream, bool refresh = true, bool onlyNonDefaults = false);
 
     WarningAndWatchdog      warningAndWatchdog;
     OVandVDSFaults          oVandVDSFaults;
@@ -73,11 +73,6 @@ public:
         drv8305.init(spi);
         drv8305.gateDriveControl.PWM_MODE_.setValue(DRV8305RegisterPWM_MODE::PWM_MODE_PWM_with_6_independent_inputs);
         drv8305.gateDriveControl.commit();
-
-        drv8305.shuntAmplifierControl.GAIN_CS1_.setValue(DRV8305RegisterGAIN_CS::GAIN_CS_80_VperV);
-        drv8305.shuntAmplifierControl.GAIN_CS2_.setValue(DRV8305RegisterGAIN_CS::GAIN_CS_80_VperV);
-        drv8305.shuntAmplifierControl.GAIN_CS3_.setValue(DRV8305RegisterGAIN_CS::GAIN_CS_80_VperV);
-        drv8305.shuntAmplifierControl.commit();
         return BLDCDriver6PWM::init();
     }
 
